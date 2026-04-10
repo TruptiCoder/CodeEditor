@@ -1,0 +1,21 @@
+<?php
+$string['pluginname'] = 'CodeJudge Assessment';
+$string['codejudge:view'] = 'View coding questions';
+$string['codejudge:manage'] = 'Manage coding questions';
+$string['codejudge:submit'] = 'Submit code solutions';
+$string['questions'] = 'Questions';
+$string['add_question'] = 'Add New Question';
+$string['title'] = 'Title';
+$string['description'] = 'Description';
+$string['marks'] = 'Marks';
+$string['actions'] = 'Actions';
+$string['submit'] = 'Submit';
+$string['language'] = 'Language';
+$string['code'] = 'Code';
+$string['result'] = 'Result';
+$string['test_cases'] = 'Test Cases';
+$string['input'] = 'Input';
+$string['expected_output'] = 'Expected Output';
+$string['run_code'] = 'Run Code';
+$string['judge_api_url'] = 'Judge API URL';
+$string['judge_api_url_desc'] = 'URL of the Python Flask Judge API (e.g., http://localhost:5000)';
