@@ -2,7 +2,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_codejudge';
-$plugin->version   = 2024021200;        // The current module version (Date: YYYYMMDDXX)
-$plugin->requires  = 2022041900;        // Requires this Moodle version
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = 'v0.1.0';
+$plugin->version   = 2024010100;
+$plugin->requires  = 2022041900;
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '1.0.0';

@@ -2,30 +2,39 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'local/codejudge:view' => [
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'student' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
+    'local/codejudge:managequestions' => [
+        'riskbitmask'  => RISK_SPAM | RISK_XSS,
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'manager'        => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        ],
-    ],
-    'local/codejudge:manage' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
         ],
     ],
     'local/codejudge:submit' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
             'student' => CAP_ALLOW,
+            'user'    => CAP_ALLOW,
+        ],
+    ],
+    'local/codejudge:viewreports' => [
+        'captype'      => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'manager'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+        ],
+    ],
+    'local/codejudge:viewown' => [
+        'captype'      => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'student' => CAP_ALLOW,
+            'user'    => CAP_ALLOW,
         ],
     ],
 ];

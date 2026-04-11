@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  judge:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount Docker socket so the service can spawn sibling containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production

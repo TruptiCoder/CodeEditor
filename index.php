@@ -1,57 +1,46 @@
 <?php
-require_once('../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
-$courseid = required_param('courseid', PARAM_INT);
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
-$context = context_course::instance($course->id);
+require_login();
+$context = context_system::instance();
 
-require_login($course);
-require_capability('local/codejudge:view', $context);
-
-$PAGE->set_url(new moodle_url('/local/codejudge/index.php', array('courseid' => $course->id)));
 $PAGE->set_context($context);
+$PAGE->set_url(new moodle_url('/local/codejudge/index.php'));
 $PAGE->set_title(get_string('pluginname', 'local_codejudge'));
-$PAGE->set_heading($course->fullname);
+$PAGE->set_heading(get_string('pluginname', 'local_codejudge'));
+$PAGE->set_pagelayout('standard');
 
 echo $OUTPUT->header();
 
-if (has_capability('local/codejudge:manage', $context)) {
-    echo $OUTPUT->single_button(
-        new moodle_url('/local/codejudge/add_question.php', array('courseid' => $course->id)),
-        get_string('add_question', 'local_codejudge'),
-        'get'
-    );
+$questions = \local_codejudge\question_manager::get_all_questions();
+
+if (empty($questions)) {
+    echo $OUTPUT->notification(get_string('noquestions', 'local_codejudge') ?: 'No questions available yet.', 'info');
+} else {
+    echo '<div class="container-fluid">';
+    echo '<h2>' . get_string('questions', 'local_codejudge') . '</h2>';
+    echo '<div class="list-group">';
+    foreach ($questions as $q) {
+        $url = new moodle_url('/local/codejudge/student/attempt.php', ['id' => $q->id]);
+        echo '<a href="' . $url . '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">';
+        echo '<div>';
+        echo '<h5 class="mb-1">' . format_string($q->title) . '</h5>';
+        echo '<small class="text-muted">' . format_text($q->description, FORMAT_PLAIN, ['trusted' => false, 'noclean' => false]) . '</small>';
+        echo '</div>';
+        echo '<span class="badge badge-primary badge-pill">' . (int)$q->marks . ' marks</span>';
+        echo '</a>';
+    }
+    echo '</div></div>';
 }
 
-$questions = $DB->get_records('local_codejudge_questions', array('courseid' => $course->id));
-
-if ($questions) {
-    $table = new html_table();
-    $table->head = array(
-        get_string('title', 'local_codejudge'),
-        get_string('marks', 'local_codejudge'),
-        get_string('actions', 'local_codejudge')
+if (has_capability('local/codejudge:managequestions', $context)) {
+    echo '<div class="mt-3">';
+    echo $OUTPUT->single_button(
+        new moodle_url('/local/codejudge/teacher/dashboard.php'),
+        get_string('dashboard', 'local_codejudge')
     );
-
-    foreach ($questions as $q) {
-        $actions = '';
-        if (has_capability('local/codejudge:manage', $context)) {
-            // Edit/Delete links would go here
-        }
-        
-        $solve_url = new moodle_url('/local/codejudge/view.php', array('id' => $q->id));
-        $actions .= html_writer::link($solve_url, get_string('submit', 'local_codejudge'));
-
-        $table->data[] = array(
-            $q->title,
-            $q->marks,
-            $actions
-        );
-    }
-    echo html_writer::table($table);
-} else {
-    echo $OUTPUT->notification(get_string('noquestions', 'local_codejudge'), 'info');
+    echo '</div>';
 }
 
 echo $OUTPUT->footer();

@@ -1,54 +1,91 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/codejudge/db" VERSION="20240212" COMMENT="XMLDB file for Moodle local_codejudge plugin"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
->
+<XMLDB PATH="local/codejudge/db" VERSION="20240101" COMMENT="XMLDB file for local_codejudge">
   <TABLES>
-    <TABLE NAME="local_codejudge_questions" COMMENT="Stores coding questions">
+    <TABLE NAME="codejudge_questions" COMMENT="Coding questions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course this question belongs to"/>
-        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="marks" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="marks" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="10"/>
+        <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="createdby" TYPE="foreign" FIELDS="createdby" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="codejudge_test_cases" COMMENT="Test cases for questions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="input_data" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="expected_output" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="main"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="codejudge_questions" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="question_id_idx" UNIQUE="false" FIELDS="question_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="codejudge_languages" COMMENT="Supported programming languages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="50" NOTNULL="true"/>
+        <FIELD NAME="compile_cmd" TYPE="char" LENGTH="500" NOTNULL="false"/>
+        <FIELD NAME="run_cmd" TYPE="char" LENGTH="500" NOTNULL="true"/>
+        <FIELD NAME="is_active" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="boilerplate_code" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-
-    <TABLE NAME="local_codejudge_testcases" COMMENT="Stores test cases for questions">
+    <TABLE NAME="codejudge_submissions" COMMENT="Student code submissions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="input_data" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="output_data" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="is_hidden" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 for sample, 1 for hidden"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="language" TYPE="char" LENGTH="50" NOTNULL="true"/>
+        <FIELD NAME="code" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="total_marks" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pending"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="local_codejudge_questions" REFFIELDS="id"/>
+        <KEY NAME="user_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="codejudge_questions" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="user_question_idx" UNIQUE="false" FIELDS="user_id,question_id"/>
+      </INDEXES>
     </TABLE>
-
-    <TABLE NAME="local_codejudge_submissions" COMMENT="Stores student submissions">
+    <TABLE NAME="codejudge_reports" COMMENT="Detailed test case results per submission">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="language" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="code" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="pending" SEQUENCE="false"/>
-        <FIELD NAME="result" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON result from judge"/>
-        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="submission_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="test_case_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="input" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="student_output" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="expected_output" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="result" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="FAIL"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="local_codejudge_questions" REFFIELDS="id"/>
+        <KEY NAME="submission_id" TYPE="foreign" FIELDS="submission_id" REFTABLE="codejudge_submissions" REFFIELDS="id"/>
+        <KEY NAME="test_case_id" TYPE="foreign" FIELDS="test_case_id" REFTABLE="codejudge_test_cases" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="submission_id_idx" UNIQUE="false" FIELDS="submission_id"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>
